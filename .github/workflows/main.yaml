@@ -21,6 +21,28 @@ jobs:
     steps:
       - run: echo "This is an integration step"
       - run: exit 1
+    allow_failure: true
+
+# GitHub Actions equivalent of GitLab's allow_failure: true
+    continue-on-error: true
+
+    steps:
+      - run: echo "This is an integration step"
+      - run: exit 1
+
+  artifact:
+    runs-on: ubuntu-22.04
+    needs: integration
+
+    steps:
+      - name: Create artifact file
+        run: echo "hello" > hello.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hello-artifact
+          path: hello.txt
 
   prod:
     runs-on: ubuntu-22.04
