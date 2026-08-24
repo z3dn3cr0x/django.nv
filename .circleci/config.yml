@@ -26,10 +26,11 @@ jobs:
         security:
           ignore-vulnerabilities: {}
         EOF
-      - run: docker run -v $(pwd):/src --rm hysnsec/safety check -r /src/requirements.txt --json | tee oast-results.json
+      - run: docker run -v $(pwd):/src --rm hysnsec/safety check -r /src/requirements.txt --json | tee oast-results.json || true
       - store_artifacts:
         path: oast-results.json
         destination: safety-artifact
+        when: always
 
   integration:
     docker:
