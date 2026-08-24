@@ -1,3 +1,5 @@
+version: 2
+
 jobs:
   build:
     docker:
@@ -21,15 +23,15 @@ jobs:
     machine: true
     steps:
       - checkout
-      - |
-        cat > .safty-policy.yml <<EOF
-        security:
-          ignore-vulnerabilities: {}
-        EOF
+      - run: |
+          cat > .safty-policy.yml <<EOF
+          security:
+            ignore-vulnerabilities: {}
+          EOF
       - run: docker run -v $(pwd):/src --rm hysnsec/safety check -r /src/requirements.txt --json | tee oast-results.json || true
       - store_artifacts:
-        path: oast-results.json
-        destination: safety-artifact
+          path: oast-results.json
+          destination: safety-artifact
         when: always
 
   integration:
