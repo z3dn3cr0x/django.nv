@@ -17,6 +17,20 @@ jobs:
           pip install -r requirements.txt
           python manage.py test taskManager
 
+  oast:
+    machine: true
+    steps:
+      - checkout
+      - |
+        cat > .safty-policy.yml <<EOF
+        security:
+          ignore-vulnerabilities: {}
+        EOF
+      - run: docker run -v $(pwd):/src --rm hysnsec/safety check -r /src/requirements.txt --json | tee oast-results.json
+      - store_artifacts:
+        path: oast-results.json
+        destination: safety-artifact
+
   integration:
     docker:
       - image: python:3.6
@@ -39,8 +53,15 @@ workflows:
   django:
     jobs:
       - build
-      - test
-      - integration
+      - test:
+          requires:
+            - build
+      - oast:
+          requires:
+            - test
+      - integration:
+          requires:
+            - oast
       - prod:
           type: approval
           requires:
