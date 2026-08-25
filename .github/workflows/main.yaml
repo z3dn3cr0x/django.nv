@@ -68,7 +68,8 @@ jobs:
           name: Snyk
           path: snyk-results.json
         if: always()        # what is this for?
-
+        continue-on-error: true
+        
   integration:
     runs-on: ubuntu-22.04
     needs: test
