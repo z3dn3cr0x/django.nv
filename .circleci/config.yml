@@ -27,6 +27,24 @@ jobs:
             echo "This is an integration step"
             exit 1
 
+  oast-frontend:
+    machine: true
+    steps:
+      - checkout
+
+      - run:
+          name: Install npm packages
+          command: npm install
+
+      - run:
+          name: Run RetireJS
+          command: |
+            docker run --rm -v $(pwd):/src -w /src hysnsec/retire --outputformat json --outputpath retirejs-output.json --severity high
+
+      - store_artifacts:
+          path: retirejs-output.json
+          destination: retirejs-artifact
+
   prod:
     docker:
       - image: python:3.6
@@ -39,8 +57,15 @@ workflows:
   django:
     jobs:
       - build
-      - test
-      - integration
+      - test:
+          requires:
+            - build
+      - oast-frontend:
+          requires:
+            - tesr
+      - integration:
+          require:
+            -  oast-frontend
       - prod:
           type: approval
           requires:
